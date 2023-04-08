@@ -126,6 +126,13 @@ class Game {
     static pixelColorAt(x, y) {
         return this.context.getImageData(x, y, 1, 1).data
     }
+
+    static newHiddenCanvas() {
+        var coll_canvas = document.createElement('canvas');
+        coll_canvas.width = Game.canvas.width;
+        coll_canvas.height = Game.canvas.height;
+        return coll_canvas
+    }
 }
 
 class Actor {
@@ -187,11 +194,11 @@ class Actor {
         actor = null;
     }
 
-    render_host() {
-        var f = Game.context.filter;
-        Game.context.filter = this.filter;
-        this.render()
-        Game.context.filter = f;
+    render_host(context = Game.context) {
+        var f = context.filter;
+        context.filter = this.filter;
+        this.render(context)
+        context.filter = f;
     }
 
     // placeholdder incase no function exists
@@ -205,6 +212,34 @@ class Actor {
 
     pointTowards(x, y) {
         this.direction = Math.atan2(y - this.y, x - this.x)
+    }
+
+    numberOfCollisions(a1,a2,dim)
+    {
+        var this_canv = Game.newHiddenCanvas()
+        var this_context = this_canv.getContext('2d')      
+
+        a1.render_host(this_context);
+        var this_arr = Array.from(this_context.getImageData(...dim).data);
+
+        a2.render_host(this_context);
+        var both_arr = Array.from(this_context.getImageData(...dim).data);
+
+    // var id = new ImageData(new Uint8ClampedArray(both_arr.map((x,ind) => x - this_arr[ind])), this.width, this.height)
+    //    Game.context.putImageData(id, this.x, this.y)
+        var collisions = 0
+        for(var i = 0; i < this_arr.length; i++)
+        {
+            // r,g,b,a,r,g,b,a <- a: if not part of this actor skip
+            if((i + 1) % 4 == 0 && this_arr[i] == 0) continue;
+            
+            if(this_arr[i] != both_arr[i])
+            {
+                collisions++
+            }
+        }
+        
+        return collisions;
     }
 
 }

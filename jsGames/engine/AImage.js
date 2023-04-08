@@ -19,18 +19,18 @@ class AImage extends Actor {
         context.setTransform(1, 0, 0, 1, 0, 0);
     }
 
-    touchingMouse() {
-        var coll_canvas = document.createElement('canvas');
-        coll_canvas.width = Game.canvas.width;
-        coll_canvas.height = Game.canvas.height;
-
-        var coll_context = coll_canvas.getContext('2d')
-        this.render(coll_context);
+    isTouchingMouse() {
+        var coll_context = Game.newHiddenCanvas().getContext('2d');
+        this.render_host(coll_context);
         var coll_arr = coll_context.getImageData(Game.mouse.x, Game.mouse.y, 1, 1).data;
         return coll_arr[3] != 0; // rgba <- a
     }
 
-    // isColliding(actor2) {
-    //     if(this.)
-    // }
+    isTouching(actor2, jpegTollerance = 20) {
+        // jpegTollerance represents how the maximum number of pixels touching
+        var dim = [this.x - this.width / 2, this.y - this.height / 2, this.width, this.height]
+        if(super.numberOfCollisions(this,actor2,dim) > jpegTollerance)
+            return true
+        return false
+    }
 }
